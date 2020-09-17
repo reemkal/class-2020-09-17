@@ -21,12 +21,38 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Once you have finished cleaning your data, figure out the course with the highest enrollment. And figure out how many students are enrolled in Gov 50. If you get a number much lower than 151, you have done something wrong . . .
 
+```{r}
+fall <- read_excel("raw_data/raw.xlsx", skip = 3) %>%
+  clean_names() %>%
+  select(-c(grad:total)) %>%
+  filter(u_grad >= 10) %>%
+  drop_na() %>%
+  arrange(desc(u_grad))
+print(fall)
 
+total_enroll <- fall %>%
+  filter(course_title == "GOV 50") %>%
+  group_by(course_title) %>%
+  summarize(total_enroll = sum(u_grad))
+print(total_enroll)
+  
+```
+ECON 10A, Principles of Economics, has the highest enrollment with 559 students. Gov 51 has 151 students.
 
 
 ### Scene 2
 
 **Prompt:** Create a bar plot of the 10 biggest courses. Order the plot so that courses appear in descending order. You will want to use coord_flip() to make your plot easy to read.
+
+```{r}
+fall %>% arrange(desc(u_grad)) %>%
+  slice(1:10) %>%
+  ggplot(aes(x = course_title, y = u_grad))+
+  geom_col()+
+  coord_flip()+
+  labs(title = "Top 10 Courses with the Highest Enrollment", y = "Enrollment", x = "Course")
+  
+```
 
 
 
@@ -35,6 +61,14 @@ Once you have finished cleaning your data, figure out the course with the highes
 
 **Prompt:** Make a bar plot of total enrollment by department for the ten smallest departments. Arrange the bar plot in ascending order.
 
+```{r}
+fall %>% arrange(u_grad) %>%
+  slice(1:10) %>%
+  ggplot(aes(x = course_department, y = u_grad))+
+  geom_col()+
+  coord_flip()+
+  labs(title = "Top 10 Departments with the Lowest Enrollment", y = "Enrollment", x = "Course")
+```
 
 
 ### Scene 4
